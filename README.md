@@ -16,6 +16,14 @@ kubectl create secret generic challenge-secret --from-literal apikey=YOUR_KEY
 ```
 kubectl apply -f k8s
 ```
+5. Wait for the ingress controller to assign an IP:
+```
+watch "kubectl get ingress"
+```
+6. Once that's assigned, simply:
+```
+curl <ingress_ip>
+```
 
 Minikube requires the Nginx Ingress Controller to be enabled:
 ```
