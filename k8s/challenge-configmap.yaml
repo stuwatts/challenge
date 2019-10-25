@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: challenge-config
+  namespace: default
+data:
+  ndays: "4"
+  symbol: "MSFT"

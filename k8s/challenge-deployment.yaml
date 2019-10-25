@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: challenge
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: challenge
+  template:
+    metadata:
+      labels:
+        app: challenge
+    spec:
+      containers:
+      - name: challenge
+        image: stuwatts/challenge:v0.1
+        env:
+          - name: NDAYS
+            valueFrom:
+              configMapKeyRef:
+                name: challenge-config
+                key: ndays
+          - name: SYMBOL
+            valueFrom:
+              configMapKeyRef:
+                name: challenge-config
+                key: symbol
+          - name: APIKEY
+            valueFrom:
+              secretKeyRef:
+                name: challenge-secret
+                key: apikey
+        ports:
+        - containerPort: 8080

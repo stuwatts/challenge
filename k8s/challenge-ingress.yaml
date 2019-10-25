@@ -1,0 +1,8 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: challenge-ingress
+spec:
+  backend:
+    serviceName: challenge
+    servicePort: 8080
