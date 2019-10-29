@@ -14,18 +14,8 @@ spec:
     spec:
       containers:
       - name: challenge
-        image: stuwatts/challenge:v0.1
+        image: stuwatts/challenge:v1.0
         env:
-          - name: NDAYS
-            valueFrom:
-              configMapKeyRef:
-                name: challenge-config
-                key: ndays
-          - name: SYMBOL
-            valueFrom:
-              configMapKeyRef:
-                name: challenge-config
-                key: symbol
           - name: APIKEY
             valueFrom:
               secretKeyRef:

@@ -3,26 +3,34 @@ import json
 import urllib.request, urllib.parse, urllib.error
 import os
 import datetime
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
 apikey = os.environ.get('API_KEY')
-symbol = os.environ.get('SYMBOL')
-ndays = int(os.environ.get('NDAYS'))
 
-# build the upstream request URI:
-getVars = {}
-getVars['apikey'] = apikey
-getVars['function'] = "TIME_SERIES_DAILY_ADJUSTED"
-getVars['symbol'] = symbol
-base_url = "https://www.alphavantage.co/query?"
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>Prototype API<h1><p>Returns average stock prices for given number of days</p.'''
 
-url = (base_url + urllib.parse.urlencode(getVars))
+@app.route('/api/v1/resources/stock', methods=['GET'])
+def stock():
+    # look for two request params:
+    ndays = int(request.args.get('ndays'))
+    symbol = request.args.get('symbol')
 
-@app.route('/')
-def index():
-    n = ndays
+    if not (ndays or symbol):
+        return "Error in args"
+
+    # build the upstream request URI:
+    getVars = {}
+    getVars['apikey'] = apikey
+    getVars['function'] = "TIME_SERIES_DAILY_ADJUSTED"
+    getVars['symbol'] = symbol
+    base_url = "https://www.alphavantage.co/query?"
+
+    url = (base_url + urllib.parse.urlencode(getVars))
+
     # go get the API response:
     response = requests.get(url)
 
@@ -32,11 +40,11 @@ def index():
     # Build a list of the last 4 days closing prices.
     prices = []
 
-    while n > 0:
+    while ndays > 0:
         # This relies on Python3 ordering the JSON dict:
-        key = list(data['Time Series (Daily)'])[n - 1]
+        key = list(data['Time Series (Daily)'])[ndays - 1]
         prices.append(round(float(data['Time Series (Daily)'][key]['4. close']), 2))
-        n -= 1
+        ndays -= 1
 
     # simple average:
     avg = float(sum(prices) / len(prices))
