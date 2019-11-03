@@ -2,12 +2,26 @@ import requests
 import json
 import urllib.request, urllib.parse, urllib.error
 import os
-import datetime
+from pymemcache.client.base import Client
 from flask import Flask, request
 
 app = Flask(__name__)
 
 apikey = os.environ.get('API_KEY')
+node_name = os.environ.get('NODE_NAME')
+mclient = Client((node_name, 5000), serializer=json_serializer, deserializer=json_deserializer)
+
+def json_serializer(key, value):
+    if type(value) == str:
+        return value, 1
+    return json.dumps(value), 2
+
+def json_deserializer(key, value, flags):
+    if flags == 1:
+        return value.decode('utf-8')
+    if flags == 2:
+        return json.loads(value.decode('utf-8'))
+    raise Exception("Unknown serialization format")
 
 @app.route('/', methods=['GET'])
 def home():
@@ -31,11 +45,12 @@ def stock():
 
     url = (base_url + urllib.parse.urlencode(getVars))
 
-    # go get the API response:
-    response = requests.get(url)
-
-    # put the JSON in a dict:
-    data = response.json()
+    # check cache, if not present, populate:
+    data = mclient.get('api_data')
+    if data is None:
+        response = requests.get(url)
+        data = response.json()
+        mclient.set('api_data', data, 21600) # 6hr expiry
 
     # Build a list of the last 4 days closing prices.
     prices = []

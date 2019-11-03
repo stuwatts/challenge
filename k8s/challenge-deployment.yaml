@@ -14,12 +14,17 @@ spec:
     spec:
       containers:
       - name: challenge
-        image: stuwatts/challenge:v1.0
+        image: stuwatts/challenge:v1.1
+        imagePullPolicy: Always
         env:
           - name: APIKEY
             valueFrom:
               secretKeyRef:
                 name: challenge-secret
                 key: apikey
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         ports:
         - containerPort: 8080
