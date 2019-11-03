@@ -8,6 +8,26 @@ The API path is `/api/v1/resources/stock`, and accepts query paramaters `ndays` 
 
 The deployment manifest points to a Docker image on docker.io.
 
+# Prerequisites:
+
+This application expects mcrouter running on port 5000 on each cluster node:
+1. Install and configure `helm`, if not already present (not secure for prod deployments!):
+```
+cd ~
+wget https://kubernetes-helm.storage.googleapis.com/helm-v2.6.0-linux-amd64.tar.gz
+mkdir helm-v2.6.0
+tar zxfv helm-v2.6.0-linux-amd64.tar.gz -C helm-v2.6.0
+create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+helm init --service-account tiller
+helm repo update
+```
+2. deploy the default mcrouter helm chart:
+```
+helm install stable/mcrouter --name mycache --set memcached.replicaCount=3
+```
+Change `memcached.relicaCount` as required.
+
 # running in Kubernetes
 
 1. Clone out this repo
